@@ -1,0 +1,27 @@
+# Virtual environments (huge, rebuild with: pip install -r requirements.txt)
+venv/
+.venv/
+env/
+
+# Python junk
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# Raw datasets / downloads (re-downloaded by prepare_data.py)
+data/
+datasets/
+.cache/
+
+# Your own photos (add them back if you want them on GitHub)
+my_photos/*/*
+!my_photos/*/README.txt
+
+# Editor / OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Old backups
+_old/

@@ -1,0 +1,11 @@
+photos: 733   objects: 1011   boxes drawn: 975
+detector  recall    0.939   (objects that got a box)
+detector  precision 0.973   (boxes that sit on a real object)
+classifier accuracy on found objects   0.926
+END-TO-END success (found AND right class) 0.907
+
+class             objects   found  correct  success
+glass_bottle          224     221      214    0.955
+paper_cup              81      75       75    0.926
+plastic_bottle        250     248      245    0.980
+metal_can             188     184      140    0.745
