@@ -25,6 +25,27 @@ Why two networks instead of one? The classifier can learn from the many photos t
 have a label (no box), which is where almost all paper-cup photos come from. It also gives
 you two clean numbers for a report: "how many items did we find" and "how many did we name correctly".
 
+## Try it in your browser
+
+**Live demo: https://nikhil-singh2745.github.io/waste-segregation/**
+
+Nothing to install. The page downloads the two trained networks (33 MB, once) and runs them
+on your own device with [ONNX Runtime Web](https://onnxruntime.ai/docs/tutorials/web/), so there is
+no server and your photo is never uploaded. It is the same pipeline as the Python code:
+`docs/pipeline.js` is a line-by-line port of `wastesort/infer.py`, and it gives the same boxes and labels.
+
+After retraining, refresh the browser models with:
+
+```bash
+pip install onnx onnxruntime
+```
+
+```bash
+python tools/export_onnx.py
+```
+
+To preview the page on your own machine, run `python -m http.server -d docs` and open http://127.0.0.1:8000.
+
 ## Run locally after training
 
 ```bash
@@ -107,6 +128,10 @@ wastesort/train_classifier.py / train_detector.py   training loops
 wastesort/evaluate.py       tests detector + classifier together
 wastesort/infer.py          the pipeline used by the demos
 tools/build_notebook.py     rebuilds the notebook after you change code
+tools/export_onnx.py        converts weights/*.pt to ONNX for the browser demo
+docs/                       the browser demo (GitHub Pages serves this folder)
+docs/pipeline.js            the pipeline in JavaScript (port of wastesort/infer.py)
+docs/models/                the two networks as ONNX files
 weights/                    trained models go here
 ```
 

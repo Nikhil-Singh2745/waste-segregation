@@ -1,0 +1,50 @@
+{
+ "classes": [
+  "glass_bottle",
+  "paper_cup",
+  "plastic_bottle",
+  "metal_can"
+ ],
+ "nice_names": [
+  "Glass bottle",
+  "Paper cup",
+  "Plastic bottle",
+  "Metal can"
+ ],
+ "colors": [
+  [
+   46,
+   160,
+   67
+  ],
+  [
+   219,
+   109,
+   40
+  ],
+  [
+   56,
+   132,
+   244
+  ],
+  [
+   163,
+   113,
+   247
+  ]
+ ],
+ "mean": [
+  0.485,
+  0.456,
+  0.406
+ ],
+ "std": [
+  0.229,
+  0.224,
+  0.225
+ ],
+ "det_size": 416,
+ "det_stride": 8,
+ "cls_size": 128,
+ "default_conf": 0.53
+}
