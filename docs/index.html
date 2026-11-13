@@ -2,87 +2,87 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#2b44ff">
   <title>Waste Sorter</title>
   <meta name="description" content="Photograph mixed waste. Two CNNs trained from scratch find every item and sort it into a bin, right in your browser.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;900&family=DM+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bowlby+One&family=Familjen+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <header class="top">
-    <div>
-      <h1>Waste Sorter</h1>
-      <p class="lede">Photograph a pile of mixed waste. One neural network finds every item, a second one names it
-        and sends it to the right bin. Both were trained from scratch, and both run in this browser tab:
-        your photo never leaves your device.</p>
-    </div>
-    <a class="source" href="https://github.com/Nikhil-Singh2745/waste-segregation">Code and training details on GitHub</a>
+    <h1>Waste <span>Sorter</span></h1>
+    <p class="lede">Snap a pile of bottles, cans and cups. Two small neural networks find every item and pick its bin,
+      right on this device. Your photo never leaves it.</p>
   </header>
 
   <main>
-    <section class="bench" aria-label="Sort a photo">
-      <div class="stage" id="stage">
+    <div class="bench">
+      <section class="stage" id="stage" aria-label="Your photo">
         <canvas id="result" hidden></canvas>
         <video id="video" playsinline muted hidden></video>
         <div class="stage-empty" id="empty">
-          <p class="stage-title">Drop a photo here</p>
-          <p>or paste one, or use the buttons. Bottles, cans and paper cups on a plain floor or table work best.</p>
+          <div class="stickers" id="stickers" aria-hidden="true"></div>
+          <p class="stage-title">No photo yet</p>
+          <p>Bottles, cans and paper cups on a plain floor or table work best.</p>
         </div>
+      </section>
+
+      <div class="status" id="progress">
+        <span class="status-fill" id="bar" aria-hidden="true"></span>
+        <p id="status" role="status">Loading the two networks…</p>
       </div>
 
-      <div class="controls">
-        <p class="status" id="status" role="status">Loading the two networks…</p>
-        <div class="progress" id="progress" aria-hidden="true"><span id="bar"></span></div>
+      <section class="bins-wrap" aria-labelledby="binsTitle">
+        <h2 id="binsTitle">Where it goes</h2>
+        <div class="bins" id="bins"></div>
+      </section>
 
-        <div class="buttons">
-          <label class="btn primary" id="chooseLabel">
-            <input type="file" id="file" accept="image/*" disabled>
-            Choose a photo
-          </label>
-          <button class="btn" id="camera" type="button" disabled>Use camera</button>
-          <button class="btn primary" id="shoot" type="button" hidden>Take photo</button>
-          <button class="btn" id="cancelCamera" type="button" hidden>Close camera</button>
-        </div>
+      <label class="tune" for="conf">
+        <span class="tune-head"><span>Detector confidence</span><output id="confOut">0.50</output></span>
+        <input type="range" id="conf" min="0.1" max="0.9" step="0.01" value="0.5">
+        <span class="tune-ends" aria-hidden="true"><span>Finds more</span><span>Only the sure ones</span></span>
+        <span class="hint">Missing items? Slide left. Boxes around nothing? Slide right.</span>
+      </label>
 
-        <label class="slider" for="conf">
-          <span class="slider-head"><span>Detector confidence</span><output id="confOut">0.50</output></span>
-          <input type="range" id="conf" min="0.1" max="0.9" step="0.01" value="0.5">
-          <span class="hint">Lower finds more items but draws more false boxes. Higher keeps only the sure ones.</span>
+      <div class="actions" id="actions">
+        <button class="btn primary" id="camera" type="button" disabled>Take a photo</button>
+        <label class="btn" id="chooseLabel">
+          <input type="file" id="file" accept="image/*" disabled>
+          Pick a photo
         </label>
+        <button class="btn" id="cancelCamera" type="button" hidden>Close camera</button>
+        <button class="shutter" id="shoot" type="button" aria-label="Take photo" hidden></button>
       </div>
-    </section>
-
-    <section aria-labelledby="binsTitle">
-      <h2 id="binsTitle">Sorted into bins</h2>
-      <div class="bins" id="bins"></div>
-    </section>
+    </div>
 
     <section class="about" aria-labelledby="aboutTitle">
       <h2 id="aboutTitle">How it works</h2>
       <div class="about-grid">
-        <div>
-          <h3>Detector</h3>
+        <div class="card">
+          <h3>First, a detector</h3>
           <p>A CenterNet-style network with 4.5 million weights looks at the photo at 416×416 and marks where
             items are. It does not care what they are.</p>
         </div>
-        <div>
-          <h3>Classifier</h3>
+        <div class="card">
+          <h3>Then, a classifier</h3>
           <p>Each box is cut out and shown to a small ResNet with 4.0 million weights, in four rotations.
             It answers: glass bottle, paper cup, plastic bottle or metal can.</p>
         </div>
-        <div>
-          <h3>Measured on unseen test photos</h3>
+        <div class="card scores">
+          <h3>Scores on unseen test photos</h3>
           <dl class="numbers">
-            <div><dt>Items found</dt><dd>94%</dd></div>
-            <div><dt>Found and named correctly</dt><dd>90.7%</dd></div>
-            <div><dt>Weakest class: metal can</dt><dd>74.5%</dd></div>
+            <div><dd>94%</dd><dt>of items found</dt></div>
+            <div><dd>90.7%</dd><dt>found and named correctly</dt></div>
+            <div><dd>74.5%</dd><dt>on metal cans, the weakest class</dt></div>
           </dl>
         </div>
       </div>
       <p class="fine">No pretrained weights and no YOLO. The networks were exported from PyTorch to ONNX and run here
         with ONNX Runtime Web, so there is no server behind this page.</p>
+      <a class="btn source" href="https://github.com/Nikhil-Singh2745/waste-segregation">Code and training details on GitHub</a>
     </section>
   </main>
 
