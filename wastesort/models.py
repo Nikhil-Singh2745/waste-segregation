@@ -50,7 +50,7 @@ def init_weights(model):
 
 # ----------------------------------------------------------------------------- classifier
 class WasteClassifier(nn.Module):
-    """Small ResNet-style classifier. Input 3x128x128 -> 4 class scores. ~2.8M weights."""
+    """Small ResNet-style classifier. Input 3x128x128 -> 4 class scores. ~4.0M weights."""
 
     def __init__(self, num_classes=len(CLASSES), width=(32, 64, 128, 256), dropout=0.3):
         super().__init__()
@@ -72,7 +72,7 @@ class WasteClassifier(nn.Module):
 
 # ----------------------------------------------------------------------------- detector
 class WasteDetector(nn.Module):
-    """Anchor-free single-shot detector in the style of CenterNet. ~3.5M weights.
+    """Anchor-free single-shot detector in the style of CenterNet. ~4.5M weights.
 
     A backbone shrinks the image to 1/8, 1/16 and 1/32 size; a small feature pyramid
     merges those back into one 1/8-size map. For every cell of that map the head says:

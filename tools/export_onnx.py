@@ -5,7 +5,7 @@
 
 Writes docs/models/detector.onnx, docs/models/classifier.onnx and docs/models/meta.json,
 then checks that ONNX gives the same numbers as PyTorch. Re-run it after retraining.
-Nothing else in the project depends on these files: app.py and predict.py still use weights/*.pt.
+Nothing else in the project depends on these files: predict.py still uses weights/*.pt.
 """
 import json
 import os

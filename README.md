@@ -34,35 +34,28 @@ on your own device with [ONNX Runtime Web](https://onnxruntime.ai/docs/tutorials
 no server and your photo is never uploaded. It is the same pipeline as the Python code:
 `docs/pipeline.js` is a line-by-line port of `wastesort/infer.py`, and it gives the same boxes and labels.
 
-After retraining, refresh the browser models with:
+## Run it on your own machine
 
-```bash
-pip install onnx onnxruntime
-```
-
-```bash
-python tools/export_onnx.py
-```
-
-To preview the page on your own machine, run `python -m http.server -d docs` and open http://127.0.0.1:8000.
-
-## Run locally after training
+The trained weights ship in `weights/`, so this works straight after cloning:
 
 ```bash
 pip install -r requirements.txt
 ```
 
 ```bash
-python app.py
-```
-
-Open http://127.0.0.1:7860 in a browser, upload or snap a photo, press **Sort the waste**.
-
-Without the web page:
-
-```bash
 python predict.py my_photo.jpg
 ```
+
+This prints the count per bin and saves `my_photo_sorted.jpg` with the boxes drawn on it.
+Add `--conf 0.4` to change how sure the detector must be before it draws a box.
+
+To open the browser demo locally instead of on GitHub Pages:
+
+```bash
+python -m http.server -d docs
+```
+
+Then open http://127.0.0.1:8000.
 
 ## Data
 
@@ -81,12 +74,16 @@ four photos are tiled into one (mosaic) and extra items are cut from other photo
 
 Photos are split into train / validation / test (about 80 / 10 / 10). The drinking-waste photos were
 shot in bursts, so they are split in blocks of consecutive photos to keep near-identical shots out of the test set.
-The 24 real photos that contain several different items are all kept for testing.
+The real photos that contain several different items are all kept for testing.
+
+After merging there are 6,782 / 892 / 733 photos (train / validation / test) for the detector and
+8,082 / 1,029 / 1,097 single-item crops for the classifier.
 
 ## Results
 
-These numbers come from the full training run. The trained weights ship in `weights/`
-so the demo works straight away. All numbers are measured on test photos never used for training.
+These numbers come from the full training run (60 epochs for the classifier, 80 for the detector,
+about 2.5 hours in total on a free Kaggle Tesla T4 GPU). All numbers are measured on test photos
+never used for training.
 
 | Full run                                            | Result                                        |
 | --------------------------------------------------- | --------------------------------------------- |
@@ -109,7 +106,8 @@ What the results show honestly:
 - Boxes on real multi-item photos are very good: the detector finds 94% of items.
 - **Metal can is the weak class.** It is mostly confused with plastic bottles (blue/white cans look like bottles).
 - Paper cup looks strong, but its test items are mostly computer-generated scenes, and no free dataset has real
-  photos of used paper cups on a floor. Expect lower accuracy on your own cup photos; adding them (see above) helps.
+  photos of used paper cups on a floor. Expect lower accuracy on your own cup photos; adding them
+  (see "Retrain" below) helps.
 
 The full numbers are in `runs/classifier/results.json`, `runs/detector/results.json`
 and `runs/pipeline/report.txt`, with plots next to them.
@@ -117,9 +115,9 @@ and `runs/pipeline/report.txt`, with plots next to them.
 ## Files
 
 ```
-app.py                      web demo
 predict.py                  command-line demo
-notebooks/original.ipynb   the original notebook before training
+notebooks/original.ipynb        the training notebook (upload to Kaggle or Colab, press Run All)
+notebooks/after_training.ipynb  the same notebook after the full run, with all outputs
 wastesort/config.py         class names, image sizes, dataset list
 wastesort/models.py         the two CNNs
 wastesort/data.py           loading + augmentation (mosaic, paste, flips, colour)
@@ -127,15 +125,19 @@ wastesort/prepare_data.py   downloads and merges the datasets
 wastesort/train_classifier.py / train_detector.py   training loops
 wastesort/evaluate.py       tests detector + classifier together
 wastesort/infer.py          the pipeline used by the demos
-tools/build_notebook.py     rebuilds the notebook after you change code
+tools/build_notebook.py     packs the source files into one self-contained notebook (notebooks/train_on_kaggle.ipynb)
 tools/export_onnx.py        converts weights/*.pt to ONNX for the browser demo
 docs/                       the browser demo (GitHub Pages serves this folder)
 docs/pipeline.js            the pipeline in JavaScript (port of wastesort/infer.py)
 docs/models/                the two networks as ONNX files
-weights/                    trained models go here
+weights/                    the trained models (PyTorch)
+runs/                       training curves, confusion matrix, test report, example outputs
+my_photos/                  optional: your own photos to add to training
 ```
 
-To retrain on your own machine instead:
+## Retrain
+
+The easiest way is `notebooks/original.ipynb` on Kaggle with a GPU. On your own machine (a GPU is strongly recommended):
 
 ```bash
 python -m wastesort.prepare_data
@@ -151,4 +153,17 @@ python -m wastesort.train_detector --epochs 80
 
 ```bash
 python -m wastesort.evaluate
+```
+
+To teach the classifier with your own photos, put them in `my_photos/<class>/` (one item per photo)
+before running `prepare_data`. They are added to the classifier's training set.
+
+After retraining, refresh the models used by the browser demo:
+
+```bash
+pip install onnx onnxruntime
+```
+
+```bash
+python tools/export_onnx.py
 ```

@@ -25,3 +25,13 @@ Thumbs.db
 
 # Old backups
 _old/
+
+# Sample photos for trying the demo (see README)
+sample_photos/
+
+# Personal notes
+STUDY_GUIDE.md
+
+#Paper
+paper/
+paper.zip
