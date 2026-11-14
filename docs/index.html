@@ -3,12 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#2b44ff">
+  <meta name="theme-color" content="#c69c6d">
   <title>Waste Sorter</title>
   <meta name="description" content="Photograph mixed waste. Two CNNs trained from scratch find every item and sort it into a bin, right in your browser.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bowlby+One&family=Familjen+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Saira+Stencil+One&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -16,6 +16,7 @@
     <h1>Waste <span>Sorter</span></h1>
     <p class="lede">Snap a pile of bottles, cans and cups. Two small neural networks find every item and pick its bin,
       right on this device. Your photo never leaves it.</p>
+    <div class="marks" id="marks" aria-hidden="true"></div>
   </header>
 
   <main>
@@ -24,7 +25,6 @@
         <canvas id="result" hidden></canvas>
         <video id="video" playsinline muted hidden></video>
         <div class="stage-empty" id="empty">
-          <div class="stickers" id="stickers" aria-hidden="true"></div>
           <p class="stage-title">No photo yet</p>
           <p>Bottles, cans and paper cups on a plain floor or table work best.</p>
         </div>
@@ -35,9 +35,11 @@
         <p id="status" role="status">Loading the two networks…</p>
       </div>
 
-      <section class="bins-wrap" aria-labelledby="binsTitle">
-        <h2 id="binsTitle">Where it goes</h2>
+      <section class="facts" aria-labelledby="binsTitle">
+        <h2 id="binsTitle">Contents</h2>
+        <p class="facts-total"><span>Items found in this photo</span><b id="total">0</b></p>
         <div class="bins" id="bins"></div>
+        <p class="facts-foot">Sorted on this device. Tilt-proof: every item is checked in four rotations.</p>
       </section>
 
       <label class="tune" for="conf">
@@ -61,17 +63,17 @@
     <section class="about" aria-labelledby="aboutTitle">
       <h2 id="aboutTitle">How it works</h2>
       <div class="about-grid">
-        <div class="card">
+        <div class="panel">
           <h3>First, a detector</h3>
           <p>A CenterNet-style network with 4.5 million weights looks at the photo at 416×416 and marks where
             items are. It does not care what they are.</p>
         </div>
-        <div class="card">
+        <div class="panel">
           <h3>Then, a classifier</h3>
           <p>Each box is cut out and shown to a small ResNet with 4.0 million weights, in four rotations.
             It answers: glass bottle, paper cup, plastic bottle or metal can.</p>
         </div>
-        <div class="card scores">
+        <div class="panel scores">
           <h3>Scores on unseen test photos</h3>
           <dl class="numbers">
             <div><dd>94%</dd><dt>of items found</dt></div>
@@ -82,7 +84,7 @@
       </div>
       <p class="fine">No pretrained weights and no YOLO. The networks were exported from PyTorch to ONNX and run here
         with ONNX Runtime Web, so there is no server behind this page.</p>
-      <a class="btn source" href="https://github.com/Nikhil-Singh2745/waste-segregation">Code and training details on GitHub</a>
+      <a class="source" href="https://github.com/Nikhil-Singh2745/waste-segregation">Code and training details on GitHub</a>
     </section>
   </main>
 

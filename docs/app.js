@@ -51,29 +51,29 @@ async function init() {
 }
 
 // ------------------------------------------------------------------ bins
-// Page colours and icons per class. A class without an entry falls back to the colour in meta.json.
-const LOOK = {
-  glass_bottle:   { color: "#19d97b", icon: '<path d="M20 4h8v9c0 3 6 6 6 13v15a3 3 0 0 1-3 3H17a3 3 0 0 1-3-3V26c0-7 6-10 6-13z"/><path d="M14 28h20" fill="none"/>' },
-  paper_cup:      { color: "#ff7a1a", icon: '<path d="M13 16h22l-3 27H16z"/><path d="M10 10h28v6H10z"/><path d="M14.5 26h19" fill="none"/>' },
-  plastic_bottle: { color: "#ffd60a", icon: '<path d="M19 8h10c0 4 6 5 6 11v6c0 2-2 2-2 4s2 2 2 4v8a3 3 0 0 1-3 3H16a3 3 0 0 1-3-3v-8c0-2 2-2 2-4s-2-2-2-4v-6c0-6 6-7 6-11z"/><path d="M19 3h10v5H19z"/>' },
-  metal_can:      { color: "#ff7ac8", icon: '<path d="M13 9c0-2 5-4 11-4s11 2 11 4v30c0 2-5 4-11 4s-11-2-11-4z"/><path d="M13 9c0 2 5 4 11 4s11-2 11-4M13 17c0 2 5 4 11 4s11-2 11-4" fill="none"/>' },
+// Line-drawn pictograms per class, like the handling marks printed on a box.
+const ICONS = {
+  glass_bottle:   '<path d="M20 4h8v9c0 3 6 6 6 13v15a3 3 0 0 1-3 3H17a3 3 0 0 1-3-3V26c0-7 6-10 6-13z"/><path d="M14 28h20"/>',
+  paper_cup:      '<path d="M13 16h22l-3 27H16z"/><path d="M10 10h28v6H10z"/><path d="M14.5 26h19"/>',
+  plastic_bottle: '<path d="M19 8h10c0 4 6 5 6 11v6c0 2-2 2-2 4s2 2 2 4v8a3 3 0 0 1-3 3H16a3 3 0 0 1-3-3v-8c0-2 2-2 2-4s-2-2-2-4v-6c0-6 6-7 6-11z"/><path d="M19 3h10v5H19z"/>',
+  metal_can:      '<path d="M13 9c0-2 5-4 11-4s11 2 11 4v30c0 2-5 4-11 4s-11-2-11-4z"/><path d="M13 9c0 2 5 4 11 4s11-2 11-4M13 17c0 2 5 4 11 4s11-2 11-4"/>',
 };
-const colorOf = (i) => LOOK[meta.classes[i]]?.color || `rgb(${meta.colors[i].join(",")})`;
-const iconOf = (i) => `<svg viewBox="0 0 48 48" fill="currentColor" stroke="#0d0d12" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">${
-  LOOK[meta.classes[i]]?.icon || '<rect x="10" y="10" width="28" height="28" rx="4"/>'}</svg>`;
+const iconOf = (i) => `<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">${
+  ICONS[meta.classes[i]] || '<rect x="10" y="10" width="28" height="28" rx="4"/>'}</svg>`;
 
 function buildBins(m) {
   meta = m;
-  $("stickers").innerHTML = meta.classes.map((_, i) =>
-    `<span class="sticker" style="--c: ${colorOf(i)}">${iconOf(i)}</span>`).join("");
+  $("marks").innerHTML = meta.classes.map((_, i) =>
+    `<span class="mark">${iconOf(i)}<span>${meta.nice_names[i]}</span></span>`).join("");
   $("bins").innerHTML = meta.classes.map((_, i) => `
-    <article class="bin" id="binbox-${i}" style="--c: ${colorOf(i)}">
+    <article class="bin" id="binbox-${i}">
       <div class="bin-head"><span class="bin-icon" aria-hidden="true">${iconOf(i)}</span><span class="bin-name">${meta.nice_names[i]}</span><span class="bin-count" id="count-${i}">0</span></div>
       <div class="bin-body" id="bin-${i}"></div>
     </article>`).join("");
 }
 
 function fillBins(objects) {
+  $("total").textContent = objects.length;
   meta.classes.forEach((_, i) => {
     const mine = objects.filter((o) => o.class_id === i);
     const body = $("bin-" + i);
@@ -108,24 +108,23 @@ function draw(objects) {
   const big = Math.max(photo.width, photo.height);
   const k = photo.width / (canvas.clientWidth || photo.width);   // photo pixels per screen pixel, so labels stay readable on a phone
   const t = Math.max(3, Math.round(big / 220), Math.round(2.5 * k)), fs = Math.max(14, Math.round(big / 46), Math.round(13 * k));
-  const ink = "#0d0d12";
-  ctx.font = `700 ${fs}px "Familjen Grotesk", system-ui, sans-serif`;
+  const ink = "#16110c", label = "#ffffff";
+  ctx.font = `800 ${fs}px Archivo, system-ui, sans-serif`;
   ctx.textBaseline = "middle";
-  ctx.lineJoin = "round";
+  ctx.lineJoin = "miter";
   for (const o of objects) {
-    const [x1, y1, x2, y2] = o.box, col = colorOf(o.class_id);
-    ctx.strokeStyle = ink; ctx.lineWidth = t * 2.2;            // black outline under the coloured box
+    const [x1, y1, x2, y2] = o.box;
+    ctx.strokeStyle = ink; ctx.lineWidth = t * 2.2;            // black outline under the white box, visible on any photo
     ctx.strokeRect(x1, y1, x2 - x1, y2 - y1);
-    ctx.strokeStyle = col; ctx.lineWidth = t;
+    ctx.strokeStyle = label; ctx.lineWidth = t;
     ctx.strokeRect(x1, y1, x2 - x1, y2 - y1);
-    const text = `${meta.nice_names[o.class_id]} ${Math.round(o.confidence * 100)}%`;
+    const text = `${meta.nice_names[o.class_id]} ${Math.round(o.confidence * 100)}%`.toUpperCase();
     const tw = ctx.measureText(text).width + fs * 0.8, th = fs * 1.55;
-    const tx = Math.max(t, Math.min(x1 - t / 2, photo.width - tw - t));
+    const tx = Math.max(0, Math.min(x1 - t * 1.1, photo.width - tw));
     const ty = y1 - th > 0 ? y1 - th : y1;          // label above the box, or inside it at the top edge
-    ctx.fillStyle = col; ctx.strokeStyle = ink; ctx.lineWidth = t * 0.6;
-    ctx.fillRect(tx, ty, tw, th);
-    ctx.strokeRect(tx, ty, tw, th);
     ctx.fillStyle = ink;
+    ctx.fillRect(tx, ty, tw, th);
+    ctx.fillStyle = label;
     ctx.fillText(text, tx + fs * 0.4, ty + th / 2);
   }
 }
